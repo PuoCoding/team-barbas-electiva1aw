@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>NaniCoin (mínimo)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+</head>
+<body>
+
+<h1>NaniCoin</h1>
+<p id="status"></p>
+
+<textarea id="data" placeholder="datos del bloque"></textarea>
+<button onclick="crear()">Crear bloque</button>
+<hr>
+<div id="chain"></div>
+
+<script>
+  class Block {
+    constructor(index, data, previousHash = '') {
+      this.index = index;
+      this.date = new Date();
+      this.data = data;
+      this.previousHash = previousHash;
+      this.nonce = 0;
+      this.hash = this.createHash();
+    }
+    createHash() {
+      return CryptoJS.SHA256(this.index + this.date + this.data + this.previousHash + this.nonce).toString();
+    }
+    mine(dif) {
+      while (!this.hash.startsWith(dif)) { this.nonce++; this.hash = this.createHash(); }
+    }
+  }
+
+  class BlockChain {
+    constructor(genesis, dif = '00') {
+      this.chain = [new Block(0, genesis)];
+      this.dif = dif;
+    }
+    addBlock(data) {
+      const prev = this.chain[this.chain.length - 1];
+      const b = new Block(prev.index + 1, data, prev.hash);
+      b.mine(this.dif);
+      this.chain.push(b);
+    }
+    updateBlock(index, data) {
+      this.chain.find(b => b.index === index).data = data; // no recalcula el hash a propósito
+    }
+    deleteBlock(index) {
+      this.chain = this.chain.filter(b => b.index !== index);
+    }
+    isValid() {
+      for (let i = 1; i < this.chain.length; i++) {
+        if (this.chain[i].hash !== this.chain[i].createHash()) return { ok: false, i };
+        if (this.chain[i].previousHash !== this.chain[i - 1].hash) return { ok: false, i };
+      }
+      return { ok: true };
+    }
+  }
+
+  let naniCoin = new BlockChain('genesis');
+  naniCoin.addBlock('primer bloque');
+
+  function crear() {
+    naniCoin.addBlock(document.getElementById('data').value);
+    document.getElementById('data').value = '';
+    render();
+  }
+  function editar(i) {
+    const nuevo = prompt('Nuevos datos:', naniCoin.chain.find(b => b.index === i).data);
+    if (nuevo !== null) { naniCoin.updateBlock(i, nuevo); render(); }
+  }
+  function eliminar(i) {
+    if (confirm('¿Eliminar bloque ' + i + '?')) { naniCoin.deleteBlock(i); render(); }
+  }
+
+  function render() {
+    const v = naniCoin.isValid();
+    document.getElementById('status').textContent = v.ok ? ' Cadena íntegra' : ' Cadena rota en el bloque ' + v.i;
+
+    document.getElementById('chain').innerHTML = naniCoin.chain.map(b => `
+      <div>
+        <b>#${b.index}</b> — ${b.data}<br>
+        hash: ${b.hash}<br>
+        anterior: ${b.previousHash || '—'}
+        ${b.index > 0 ? `<button onclick="editar(${b.index})">Editar</button>
+        <button onclick="eliminar(${b.index})">Eliminar</button>` : ''}
+      </div><hr>
+    `).join('');
+  }
+
+  render();
+</script>
+
+</body>
+</html>

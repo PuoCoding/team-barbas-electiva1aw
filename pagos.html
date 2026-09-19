@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kids Zone - Registro de Pagos</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+</head>
+
+<body>
+
+  <h1>Kids Zone - Registro de Pagos</h1>
+  <p id="status"></p>
+
+  <div id="form">
+    <div>
+      <label>Estudiante:
+        <input id="f-estudiante" placeholder="Nombre del niño" autocomplete="off">
+      </label>
+    </div>
+    <div>
+      <label>Concepto:
+        <select id="f-concepto">
+          <option>Mensualidad</option>
+          <option>Matrícula</option>
+          <option>Transporte</option>
+          <option>Alimentación</option>
+          <option>Materiales</option>
+          <option>Otro</option>
+        </select>
+      </label>
+    </div>
+    <div>
+      <label>Valor $:
+        <input id="f-valor" type="number" min="1" step="1" placeholder="280000">
+      </label>
+    </div>
+    <div>
+      <label>Método:
+        <select id="f-metodo">
+          <option>Efectivo</option>
+          <option>Transferencia</option>
+          <option>Nequi</option>
+          <option>Daviplata</option>
+          <option>Tarjeta</option>
+        </select>
+      </label>
+    </div>
+    <div>
+      <label>Mes:
+        <select id="f-mes">
+          <option>Enero</option>
+          <option>Febrero</option>
+          <option>Marzo</option>
+          <option>Abril</option>
+          <option>Mayo</option>
+          <option>Junio</option>
+          <option>Julio</option>
+          <option>Agosto</option>
+          <option>Septiembre</option>
+          <option>Octubre</option>
+          <option>Noviembre</option>
+          <option>Diciembre</option>
+        </select>
+      </label>
+    </div>
+  </div>
+  <button onclick="crear()">Registrar pago</button>
+  <hr>
+  <div id="chain"></div>
+
+  <script>
+    class Block {
+      constructor(index, data, previousHash = '', date = null, nonce = 0, hash = null) {
+        this.index = index;
+        this.date = date || new Date().toISOString();
+        this.data = data;
+        this.previousHash = previousHash;
+        this.nonce = nonce;
+        this.hash = hash || this.createHash();
+      }
+      createHash() {
+        return CryptoJS.SHA256(
+          this.index +
+          this.date +
+          this.data +
+          this.previousHash +
+          this.nonce
+        ).toString();
+      }
+      mine(dif) {
+        while (!this.hash.startsWith(dif)) {
+          this.nonce++;
+          this.hash = this.createHash();
+        }
+      }
+    }
+
+    class BlockChain {
+      constructor(genesis, dif = '00') {
+        this.dif = dif;
+        this.chain = [new Block(0, genesis)];
+        this.chain[0].mine(this.dif);
+      }
+
+      addBlock(data) {
+        const prev = this.chain[this.chain.length - 1];
+
+        const b = new Block(
+          prev.index + 1,
+          data,
+          prev.hash
+        );
+
+        b.mine(this.dif);
+        this.chain.push(b);
+        this.save();
+      }
+
+      updateBlock(index, data) {
+        if (index === 0) return;
+        const pos = this.chain.findIndex(b => b.index === index);
+
+        if (pos > 0) {
+          this.chain[pos].data = data;
+          this.remineFrom(pos);
+          this.save();
+        }
+      }
+
+      deleteBlock(index) {
+        if (index === 0) return;
+        const pos = this.chain.findIndex(b => b.index === index);
+        if (pos < 0) return;
+        this.chain = this.chain.filter(b => b.index !== index);
+        this.chain.forEach((block, i) => {
+          block.index = i;
+        });
+        if (pos < this.chain.length) {
+          this.remineFrom(pos);
+        }
+        this.save();
+      }
+
+      remineFrom(pos) {
+        for (let i = Math.max(1, pos); i < this.chain.length; i++) {
+          const b = this.chain[i];
+          b.previousHash = this.chain[i - 1].hash;
+          b.nonce = 0;
+          b.hash = b.createHash();
+          b.mine(this.dif);
+        }
+      }
+
+      save() {
+        try {
+          localStorage.setItem('zonaKidsChain', JSON.stringify({
+            dif: this.dif,
+            chain: this.chain
+          }));
+        } catch (e) { }
+      }
+
+      load() {
+        try {
+          const raw = localStorage.getItem('zonaKidsChain');
+          if (!raw) return false;
+          const parsed = JSON.parse(raw);
+          if (!parsed || !Array.isArray(parsed.chain) || parsed.chain.length === 0) return false;
+          this.dif = parsed.dif || this.dif;
+          this.chain = parsed.chain.map(c => new Block(
+            c.index, c.data, c.previousHash, c.date, c.nonce, c.hash
+          ));
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      isValid() {
+        if (this.chain.length === 0) {
+          return { ok: false, i: 0 };
+        }
+
+        if (this.chain[0].hash !== this.chain[0].createHash()) {
+          return { ok: false, i: 0 };
+        }
+
+        if (!this.chain[0].hash.startsWith(this.dif)) {
+          return { ok: false, i: 0 };
+        }
+
+        for (let i = 1; i < this.chain.length; i++) {
+
+          if (this.chain[i].hash !== this.chain[i].createHash()) {
+            return { ok: false, i };
+          }
+
+          if (!this.chain[i].hash.startsWith(this.dif)) {
+            return { ok: false, i };
+          }
+
+          if (this.chain[i].previousHash !== this.chain[i - 1].hash) {
+            return { ok: false, i };
+          }
+        }
+
+        return { ok: true };
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    let zonaKids = new BlockChain(
+      'Inicio del registro de pagos'
+    );
+
+    if (!zonaKids.load()) {
+      zonaKids.addBlock(
+        'Primer pago registrado'
+      );
+    }
+
+    function crear() {
+      const estudiante = document.getElementById('f-estudiante').value.trim();
+      const concepto = document.getElementById('f-concepto').value;
+      const valorRaw = document.getElementById('f-valor').value.trim();
+      const metodo = document.getElementById('f-metodo').value;
+      const mes = document.getElementById('f-mes').value;
+
+      if (estudiante === '') {
+        alert('Debe ingresar el nombre del estudiante.');
+        return;
+      }
+      const valor = Number(valorRaw);
+      if (!valorRaw || !Number.isFinite(valor) || valor <= 0) {
+        alert('Debe ingresar un valor válido mayor a 0.');
+        return;
+      }
+      let data = estudiante + ' | ' + concepto + ' | $' + valor + ' | ' + metodo + ' | ' + mes;
+      zonaKids.addBlock(data);
+      document.getElementById('f-estudiante').value = '';
+      document.getElementById('f-valor').value = '';
+      document.getElementById('f-concepto').selectedIndex = 0;
+      document.getElementById('f-metodo').selectedIndex = 0;
+      document.getElementById('f-estudiante').focus();
+      render();
+    }
+
+    function editar(i) {
+
+      const block = zonaKids.chain.find(
+        b => b.index === i
+      );
+
+      if (!block) return;
+
+      const nuevo = prompt(
+        'Editar datos del pago:',
+        block.data
+      );
+
+      if (nuevo !== null && nuevo.trim() !== '') {
+
+        zonaKids.updateBlock(
+          i,
+          nuevo.trim()
+        );
+
+        render();
+      }
+    }
+
+    function eliminar(i) {
+
+      if (confirm(
+        '¿Eliminar el pago #' + i + '?'
+      )) {
+
+        zonaKids.deleteBlock(i);
+
+        render();
+      }
+    }
+
+    function render() {
+
+      const v = zonaKids.isValid();
+
+      document.getElementById('status').textContent =
+        v.ok
+          ? 'Cadena íntegra (todos los hashes coinciden).'
+          : 'Cadena alterada en el bloque ' +
+          v.i +
+          ' (se detectó una modificación).';
+
+      document.getElementById('chain').innerHTML =
+        zonaKids.chain.map(b => `
+
+        <div>
+
+          <b>Pago #${b.index}</b><br>
+
+          Fecha:
+          ${new Date(b.date).toLocaleString()}<br>
+
+          Datos:
+          ${escapeHtml(b.data)}<br>
+
+          Hash:
+          ${b.hash}<br>
+
+          Hash anterior:
+          ${b.previousHash || '—'}
+
+          ${b.index > 0
+            ? `
+                <button onclick="editar(${b.index})">
+                  Editar
+                </button>
+
+                <button onclick="eliminar(${b.index})">
+                  Eliminar
+                </button>
+              `
+            : ''
+          }
+
+        </div>
+
+        <hr>
+
+      `).join('');
+    }
+
+    render();
+
+  </script>
+
+</body>
+
+</html>

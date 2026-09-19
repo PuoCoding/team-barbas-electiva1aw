@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Zone Kids - Registro de Inscripciones</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+</head>
+<body>
+
+<h1>Zone Kids - Registro de Inscripciones</h1>
+<p id="status"></p>
+
+<textarea id="data" placeholder="Matrícula"></textarea>
+<button onclick="crear()">Registrar inscripción</button>
+<hr>
+<div id="chain"></div>
+
+<script>
+  class Block {
+    constructor(index, data, previousHash = '') {
+      this.index = index;
+      this.date = new Date();
+      this.data = data;
+      this.previousHash = previousHash;
+      this.nonce = 0;
+      this.hash = this.createHash();
+    }
+    createHash() {
+      return CryptoJS.SHA256(this.index + this.date + this.data + this.previousHash + this.nonce).toString();
+    }
+    mine(dif) {
+      while (!this.hash.startsWith(dif)) {
+        this.nonce++;
+        this.hash = this.createHash();
+      }
+    }
+  }
+
+  class BlockChain {
+    constructor(genesis, dif = '00') {
+      this.chain = [new Block(0, genesis)];
+      this.dif = dif;
+    }
+    addBlock(data) {
+      const prev = this.chain[this.chain.length - 1];
+      const b = new Block(prev.index + 1, data, prev.hash);
+      b.mine(this.dif);
+      this.chain.push(b);
+    }
+    updateBlock(index, data) {
+      this.chain.find(b => b.index === index).data = data;
+    }
+    deleteBlock(index) {
+      this.chain = this.chain.filter(b => b.index !== index);
+    }
+    isValid() {
+      for (let i = 1; i < this.chain.length; i++) {
+        if (this.chain[i].hash !== this.chain[i].createHash())
+          return { ok: false, i };
+        if (this.chain[i].previousHash !== this.chain[i - 1].hash)
+          return { ok: false, i };
+      }
+      return { ok: true };
+    }
+  }
+
+  let zonaKids = new BlockChain('Inicio del registro de inscripciones');
+  zonaKids.addBlock('Primera inscripción registrada');
+
+  function crear() {
+    zonaKids.addBlock(document.getElementById('data').value);
+    document.getElementById('data').value = '';
+    render();
+  }
+
+  function editar(i) {
+    const nuevo = prompt(
+      'Editar datos de la inscripción:',
+      zonaKids.chain.find(b => b.index === i).data
+    );
+    if (nuevo !== null) {
+      zonaKids.updateBlock(i, nuevo);
+      render();
+    }
+  }
+
+  function eliminar(i) {
+    if (confirm('¿Eliminar la inscripción #' + i + '?')) {
+      zonaKids.deleteBlock(i);
+      render();
+    }
+  }
+
+  function render() {
+    const v = zonaKids.isValid();
+    document.getElementById('status').textContent =
+      v.ok ? 'Registro íntegro' : 'Registro alterado en el bloque ' + v.i;
+
+    document.getElementById('chain').innerHTML = zonaKids.chain.map(b => `
+      <div>
+        <b>Inscripción #${b.index}</b><br>
+        Fecha: ${new Date(b.date).toLocaleString()}<br>
+        Datos: ${b.data}<br>
+        Hash: ${b.hash}<br>
+        Hash anterior: ${b.previousHash || '—'}
+        ${b.index > 0 ? `
+          <button onclick="editar(${b.index})">Editar</button>
+          <button onclick="eliminar(${b.index})">Eliminar</button>
+        ` : ''}
+      </div><hr>
+    `).join('');
+  }
+
+  render();
+</script>
+
+</body>
+</html>
