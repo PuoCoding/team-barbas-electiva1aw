@@ -1,42 +1,49 @@
-const UsuariosService = require('./usuarios.service');
-const { sendSuccess, sendError } = require('../../utils/response.util');
+const usuariosService = require('./usuarios.service');
+const { sendSuccess, sendError } = require('../../utils/response'); // tus helpers
 
 exports.register = async (req, res, next) => {
   try {
-    const user = await UsuariosService.register(req.body);
-    return sendSuccess(res, 201, 'User registered successfully', user);
+    const user = await usuariosService.register(req.body);
+    return sendSuccess(res, { user }, 201, 'Usuario registrado');
   } catch (err) {
-    if (err.message === 'Email is already registered') {
-      return sendError(res, 400, err.message);
-    }
-    next(err);
+    return next(err);
   }
 };
 
 exports.login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return sendError(res, 400, 'Please provide email and password');
-    }
-    
-    const result = await UsuariosService.login(email, password);
-    return sendSuccess(res, 200, 'Login successful', result);
+    const result = await usuariosService.login(req.body);
+    return sendSuccess(res, result, 200, result.message || 'Login OK');
   } catch (err) {
-    if (err.message === 'Invalid credentials') {
-      return sendError(res, 401, err.message);
-    }
-    next(err);
+    return next(err);
   }
 };
 
-exports.getProfile = async (req, res, next) => {
+exports.verify2FA = async (req, res, next) => {
   try {
-    const user = await UsuariosService.getUserById(req.user.id);
-    if (!user) return sendError(res, 404, 'User not found');
-    
-    return sendSuccess(res, 200, 'User profile', user);
+    const { userId, code } = req.body;
+    const result = await usuariosService.verify2FA(userId, code);
+    return sendSuccess(res, result, 200, 'Verificación exitosa');
   } catch (err) {
-    next(err);
+    return next(err);
+  }
+};
+
+exports.resend2FA = async (req, res, next) => {
+  try {
+    const { userId } = req.body;
+    const result = await usuariosService.resend2FA(userId);
+    return sendSuccess(res, result, 200, result.message);
+  } catch (err) {
+    return next(err);
+  }
+};
+
+exports.profile = async (req, res, next) => {
+  try {
+    const user = await usuariosService.getProfile(req.user.id);
+    return sendSuccess(res, { user });
+  } catch (err) {
+    return next(err);
   }
 };
