@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/package.json",
   "name": "zone-kids-backend",
   "version": "1.0.0",
   "description": "Backend for Zone Kids with modular Blockchain",
