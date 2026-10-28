@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { peticionAPI } from '../../services/api';
+﻿import { useState, useEffect } from 'react';
+import { peticionAPI } from '../../servicios/api';
 
 export default function PanelDocente({ idEstudiante = 1 }) {
   const [ficha, setFicha] = useState(null);
@@ -11,7 +11,6 @@ export default function PanelDocente({ idEstudiante = 1 }) {
   });
   const [estadoEnvio, setEstadoEnvio] = useState('');
 
-  // FUNCIONALIDAD 3: Consultar Ficha Médica con soporte de Caché Offline (HU02 / QAW-04)
   useEffect(() => {
     async function obtenerFichaMedica() {
       try {
@@ -19,7 +18,6 @@ export default function PanelDocente({ idEstudiante = 1 }) {
         setFicha(datos);
         localStorage.setItem(`ficha_medica_${idEstudiante}`, JSON.stringify(datos));
       } catch {
-        // Si falla la red, recupera de caché local para emergencias (RNF-03)
         const cache = localStorage.getItem(`ficha_medica_${idEstudiante}`);
         if (cache) {
           setFicha(JSON.parse(cache));
@@ -37,7 +35,6 @@ export default function PanelDocente({ idEstudiante = 1 }) {
     obtenerFichaMedica();
   }, [idEstudiante]);
 
-  // FUNCIONALIDAD 4: Registrar Agenda Diaria e Incidentes (HU08 / HU11)
   async function guardarAgenda(e) {
     e.preventDefault();
     try {
@@ -55,7 +52,6 @@ export default function PanelDocente({ idEstudiante = 1 }) {
     <section className="contenedor-responsive">
       <h1 className="titulo-principal">Módulo Docente - Salud y Seguimiento Diario</h1>
 
-      {/* Banner Rojo Persistente de Alergias (Criterio de aceptación HU02) */}
       {ficha?.alergias && (
         <div className="alerta-roja" role="alert">
           ALERTA MÉDICA CRÍTICA: Alergia registrada a {ficha.alergias} — EPS: {ficha.eps} (RH: {ficha.tipo_sangre})
