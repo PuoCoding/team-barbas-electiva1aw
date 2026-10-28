@@ -1,10 +1,17 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const controller = require('./usuarios.controller');
+dev
+const { protect } = require('./auth.middleware');
+
+const router = express.Router();
+
+
 const { protect } = require('../../middlewares/auth.middleware');
 
 const router = express.Router();
 
+main
 // Rate limiting específico para endpoints sensibles de 2FA
 const twoFactorLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 min

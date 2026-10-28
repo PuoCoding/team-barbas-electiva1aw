@@ -1,6 +1,15 @@
 {
+ dev
+  "scripts": {
+    "dev": "npm --prefix backend run dev"
+  },
+  "dependencies": {
+    "express-rate-limit": "^8.7.0",
+    "nodemailer": "^10.0.10",
+    "nodemon": "^3.1.14"
   "dependencies": {
     "express-rate-limit": "^8.7.0",
     "nodemailer": "^10.0.10"
+    main
   }
 }
