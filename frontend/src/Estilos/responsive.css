@@ -1,0 +1,16 @@
+/* 1. Tipografía base y escalado responsive en pantallas grandes */
+html {
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+  html {
+    font-size: 18px; /* Amplía textos proporcionales en PC */
+  }
+}
+
+/* 2. Tipografía fluida con Viewport y clamp() */
+h1, .titulo-principal {
+  font-size: clamp(1.2rem, 2.5vw, 2rem);
+}
