@@ -1,12 +1,17 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const controller = require('./usuarios.controller');
+dev-paulo-acosta
+dev-paulo-acosta
 dev
+main
 const { protect } = require('./auth.middleware');
 
 const router = express.Router();
 
+dev-paulo-acosta
 
+main
 const { protect } = require('../../middlewares/auth.middleware');
 
 const router = express.Router();

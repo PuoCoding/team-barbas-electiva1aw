@@ -1,8 +1,13 @@
 {
+dev-paulo-acosta
+dev-paulo-acosta
  dev
+main
   "scripts": {
     "dev": "npm --prefix backend run dev"
   },
+
+main
   "dependencies": {
     "express-rate-limit": "^8.7.0",
     "nodemailer": "^10.0.10",
