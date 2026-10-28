@@ -1,5 +1,17 @@
 {
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "zone-kids-backend",
+  "version": "1.0.0",
+  "description": "Backend for Zone Kids with modular Blockchain",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "dev": "nodemon main.js",
+    "test": "jest",
+    "seed": "node seeds/seed.js"
+  },
   "dependencies": {
-    "crypto-js": "^4.2.0"
+    "crypto-js": "^4.2.0",
+    "nodemon": "^3.1.14"
   }
 }
