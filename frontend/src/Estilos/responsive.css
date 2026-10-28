@@ -1,0 +1,95 @@
+/* 1. Tipografía base y escalado responsive en pantallas grandes */
+html {
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+  html {
+    font-size: 18px; /* Amplía textos proporcionales en PC */
+  }
+}
+
+/* 2. Tipografía fluida con Viewport y clamp() */
+h1, .titulo-principal {
+  font-size: clamp(1.2rem, 2.5vw, 2rem);
+}
+
+/* 3. Imágenes y Multimedia Responsive (evita desbordamiento en cámaras/fotos)[cite: 5] */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 4. Contenedor fluido principal (evita barras de scroll horizontal)[cite: 2, 5] */
+.contenedor-responsive {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* 5. Menú de navegación con Flexbox y Media Query[cite: 5] */
+.menu-principal {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  background-color: #1e3a8a;
+  padding: 1rem;
+  color: white;
+}
+
+@media (max-width: 600px) {
+  .menu-principal {
+    flex-direction: column; /* Apila los enlaces en celulares[cite: 5] */
+    align-items: stretch;
+    text-align: center;
+  }
+}
+
+/* 6. Layout Principal (main + aside) con Flexbox[cite: 5] */
+.layout-principal {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.layout-principal main {
+  flex: 3; /* Ocupa el triple de espacio que la barra lateral[cite: 5] */
+}
+
+.layout-principal aside {
+  flex: 1;
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .layout-principal {
+    flex-direction: column; /* Pasa a ocupar el 100% uno debajo del otro[cite: 5] */
+  }
+}
+
+/* 7. CSS Grid Layout con auto-fit y minmax para tarjetas de módulos[cite: 5] */
+.grid-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+/* 8. Alertas visuales para Ficha Médica (HU02) */
+.alerta-roja {
+  background-color: #fee2e2;
+  border-left: 6px solid #dc2626;
+  color: #991b1b;
+  padding: 1rem;
+  border-radius: 6px;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
