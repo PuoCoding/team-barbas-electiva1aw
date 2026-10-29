@@ -1,9 +1,7 @@
 const usuariosService = require('./usuarios.service');
-dev
 const { sendSuccess, sendError } = require('../../utils/response.util');
 
-const { sendSuccess, sendError } = require('../../utils/response'); // tus helpers
-main
+
 
 exports.register = async (req, res, next) => {
   try {
