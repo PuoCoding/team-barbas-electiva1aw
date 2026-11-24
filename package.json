@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "dev": "npm --prefix backend run dev"
+    "dev": "npm --prefix backend run dev",
+    "start": "node backend/server.js"
   },
   "dependencies": {
     "express-rate-limit": "^8.7.0",
