@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { peticionAPI } from '../../services/api';
+﻿import { useState, useEffect } from 'react';
+import { peticionAPI } from '../../servicios/api';
 
 export default function PanelAdmin() {
   const [estudiantes, setEstudiantes] = useState([]);
@@ -27,7 +27,6 @@ export default function PanelAdmin() {
     }
   }
 
-  // FUNCIONALIDAD 1: Registrar estudiante vinculado a acudiente (HU01)
   async function registrarEstudiante(e) {
     e.preventDefault();
     try {
@@ -36,16 +35,15 @@ export default function PanelAdmin() {
         body: JSON.stringify(formulario),
       });
       setEstudiantes([...estudiantes, nuevo]);
-      setMensaje(Estudiante registrado con ID Familiar: ${nuevo.id_familia || 'FAM-' + Date.now()});
+      setMensaje(`Estudiante registrado con ID Familiar: ${nuevo.id_familia || 'FAM-' + Date.now()}`);
     } catch (err) {
-      setMensaje(Error al registrar: ${err.message});
+      setMensaje(`Error al registrar: ${err.message}`);
     }
   }
 
-  // FUNCIONALIDAD 2: Gestionar Consentimiento de Uso de Imagen (HU03)
   async function cambiarConsentimiento(idEstudiante, nuevoEstado) {
     try {
-      await peticionAPI(/estudiantes/${idEstudiante}/consentimiento, {
+      await peticionAPI(`/estudiantes/${idEstudiante}/consentimiento`, {
         method: 'PATCH',
         body: JSON.stringify({ autorizado: nuevoEstado }),
       });
@@ -120,7 +118,6 @@ export default function PanelAdmin() {
                 >
                   {est.consentimientoImagen ? 'Revocar Permiso' : 'Aprobar Permiso'}
                 </button>
-                {/* Bloqueo automático si el permiso es Negado (RNF-05) */}
                 <div style={{ marginTop: '0.5rem' }}>
                   <input
                     type="file"

@@ -1,6 +1,8 @@
 const usuariosService = require('./usuarios.service');
 const { sendSuccess, sendError } = require('../../utils/response.util');
 
+
+
 exports.register = async (req, res, next) => {
   try {
     const user = await usuariosService.register(req.body);
