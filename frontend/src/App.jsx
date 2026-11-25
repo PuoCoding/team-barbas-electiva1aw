@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import AdminWorkspace from './pages/AdminWorkspace';
-import DocenteWorkspace from './pages/DocenteWorkspace';
-import PadreWorkspace from './pages/PadreWorkspace';
+import PanelAdmin from './pages/admin/PanelAdmin.jsx';
+import PanelDocente from './pages/docente/PanelDocente.jsx';
+import PanelPadre from './pages/padre/PanelPadre.jsx';
 
 export default function App() {
   const [vista, setVista] = useState('admin');
@@ -16,9 +16,9 @@ export default function App() {
         </nav>
       </header>
       <main>
-        {vista === 'admin' && <AdminWorkspace />}
-        {vista === 'docente' && <DocenteWorkspace />}
-        {vista === 'padre' && <PadreWorkspace />}
+        {vista === 'admin' && <PanelAdmin />}
+        {vista === 'docente' && <PanelDocente />}
+        {vista === 'padre' && <PanelPadre />}
       </main>
     </>
   );

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { peticionAPI } from '../services/api';
+import { peticionAPI } from '../../services/api.js';
 
 export default function DocenteWorkspace() {
   const [agenda, setAgenda] = useState({ alimentacion: 'Comió todo', sueno: '', actividades: '', incidente: '' });

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { peticionAPI } from '../services/api';
+import { peticionAPI } from '../../services/api.js';
 
 export default function AdminWorkspace() {
   const [estudiantes, setEstudiantes] = useState([]);
