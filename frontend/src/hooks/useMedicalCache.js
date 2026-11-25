@@ -49,7 +49,11 @@ export function useMedicalCache(student, offlineSim, onAuditLog) {
 
     load();
     return () => { mounted = false; };
+<<<<<<< HEAD
   }, [sid, offlineSim, student, cached, setCached]);
+=======
+  }, [sid, offlineSim, student, setCached]);
+>>>>>>> 9fe9f910fff6b77f64c11a80e48e342672b8a96c
 
   const toggleDecrypt = () => {
     const next = !isDecrypted;
