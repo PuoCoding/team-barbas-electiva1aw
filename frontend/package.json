@@ -1,17 +1,27 @@
 {
-  "$schema": "https://json.schemastore.org/package.json",
-  "name": "zone-kids-backend",
+  "name": "kids-zone-frontend",
+  "private": true,
   "version": "1.0.0",
-  "description": "Backend for Zone Kids with modular Blockchain",
-  "main": "main.js",
+  "type": "module",
   "scripts": {
-    "start": "node main.js",
-    "dev": "nodemon main.js",
-    "test": "jest",
-    "seed": "node seeds/seed.js"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "crypto-js": "^4.2.0",
-    "nodemon": "^3.1.14"
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "oxlint": "^1.89.0",
+    "typescript": "~7.0.2",
+    "vite": "^8.3.5",
+    "tailwindcss": "^3.4.17",
+    "postcss": "^8.5.6",
+    "autoprefixer": "^10.4.21"
   }
 }

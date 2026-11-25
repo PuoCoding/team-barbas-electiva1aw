@@ -1,30 +1,25 @@
 import { useState } from 'react';
-import PanelAdmin from './pages/admin/PanelAdmin';
-import PanelDocente from './pages/docente/PanelDocente';
-import PanelPadre from './pages/padre/PanelPadre';
-import './styles/responsive.css';
+import AdminWorkspace from './pages/AdminWorkspace';
+import DocenteWorkspace from './pages/DocenteWorkspace';
+import PadreWorkspace from './pages/PadreWorkspace';
 
 export default function App() {
   const [vista, setVista] = useState('admin');
-
   return (
-    <div>
-      {/* Etiqueta semántica header y nav (Visto en clase)[cite: 5] */}
+    <>
       <header>
-        <nav className="menu-principal" aria-label="Navegación principal Kids Zone">
+        <nav className="menu-principal">
           <strong>KIDS ZONE</strong>
-          <button onClick={() => setVista('admin')}>Vista Administrador</button>
-          <button onClick={() => setVista('docente')}>Vista Docente</button>
-          <button onClick={() => setVista('padre')}>Vista Padre</button>
+          <button onClick={() => setVista('admin')}>Administrador</button>
+          <button onClick={() => setVista('docente')}>Docente</button>
+          <button onClick={() => setVista('padre')}>Padre</button>
         </nav>
       </header>
-
-      {/* Etiqueta semántica main para el contenido central[cite: 5] */}
       <main>
-        {vista === 'admin' && <PanelAdmin />}
-        {vista === 'docente' && <PanelDocente />}
-        {vista === 'padre' && <PanelPadre />}
+        {vista === 'admin' && <AdminWorkspace />}
+        {vista === 'docente' && <DocenteWorkspace />}
+        {vista === 'padre' && <PadreWorkspace />}
       </main>
-    </div>
+    </>
   );
 }
