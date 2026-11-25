@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { KpiStatCard, StudentRowCard } from '../components/SharedWidgets';
 
 export default function AdminWorkspace({ store, theme, section, onNotify }) {
   const [form, setForm] = useState({
