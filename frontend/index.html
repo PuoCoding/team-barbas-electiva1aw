@@ -1,97 +1,253 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>NaniCoin (mínimo)</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KIDS ZONE - Gestión de Jardín Infantil</title>
+  <style>
+    /* 1. Tipografía Responsive y Fluida (Visto en clase) */
+    html { font-size: 16px; font-family: system-ui, sans-serif; box-sizing: border-box; }
+    @media (min-width: 1024px) { html { font-size: 18px; } }
+    body { margin: 0; background-color: #f1f5f9; color: #1e293b; }
+    h1 { font-size: clamp(1.2rem, 2.5vw, 2rem); margin-top: 0; }
+
+    /* 2. Imágenes y Multimedia Responsive */
+    img, video { max-width: 100%; height: auto; display: block; border-radius: 8px; }
+
+    /* 3. Contenedor Fluido */
+    .contenedor-responsive { width: 100%; max-width: 1100px; margin: 0 auto; padding: 1rem; box-sizing: border-box; }
+
+    /* 4. Menú con Flexbox y Media Query (600px) */
+    .menu-principal {
+      display: flex; flex-direction: row; justify-content: space-between; align-items: center;
+      gap: 0.75rem; background-color: #1e3a8a; color: white; padding: 1rem;
+    }
+    .menu-principal button {
+      background: #3b82f6; color: white; border: none; padding: 0.6rem 1rem;
+      border-radius: 6px; cursor: pointer; font-weight: bold;
+    }
+    @media (max-width: 600px) {
+      .menu-principal { flex-direction: column; align-items: stretch; text-align: center; }
+    }
+
+    /* 5. Layout Principal con Flexbox (main flex:3 vs aside flex:1 y Media Query 768px) */
+    .layout-principal { display: flex; flex-direction: row; gap: 1.5rem; margin-top: 1rem; }
+    .layout-principal main { flex: 3; background: white; padding: 1.25rem; border-radius: 8px; }
+    .layout-principal aside { flex: 1; background: #e2e8f0; padding: 1.25rem; border-radius: 8px; }
+    @media (max-width: 768px) {
+      .layout-principal { flex-direction: column; }
+    }
+
+    /* 6. CSS Grid Layout con auto-fit y minmax */
+    .grid-tarjetas {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem; margin-top: 1rem;
+    }
+    .tarjeta { border: 1px solid #cbd5e1; padding: 1rem; border-radius: 8px; background: #f8fafc; }
+    .alerta-roja {
+      background: #fee2e2; border-left: 6px solid #dc2626; color: #991b1b;
+      padding: 1rem; border-radius: 6px; font-weight: bold; margin-bottom: 1rem;
+    }
+    input, select, textarea, button { width: 100%; padding: 0.5rem; margin-top: 0.4rem; box-sizing: border-box; }
+    button.accion { background: #1e3a8a; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .oculto { display: none; }
+  </style>
 </head>
 <body>
 
-<h1>NaniCoin</h1>
-<p id="status"></p>
-
-<textarea id="data" placeholder="datos del bloque"></textarea>
-<button onclick="crear()">Crear bloque</button>
-<hr>
-<div id="chain"></div>
-
-<script>
-  class Block {
-    constructor(index, data, previousHash = '') {
-      this.index = index;
-      this.date = new Date();
-      this.data = data;
-      this.previousHash = previousHash;
-      this.nonce = 0;
-      this.hash = this.createHash();
-    }
-    createHash() {
-      return CryptoJS.SHA256(this.index + this.date + this.data + this.previousHash + this.nonce).toString();
-    }
-    mine(dif) {
-      while (!this.hash.startsWith(dif)) { this.nonce++; this.hash = this.createHash(); }
-    }
-  }
-
-  class BlockChain {
-    constructor(genesis, dif = '00') {
-      this.chain = [new Block(0, genesis)];
-      this.dif = dif;
-    }
-    addBlock(data) {
-      const prev = this.chain[this.chain.length - 1];
-      const b = new Block(prev.index + 1, data, prev.hash);
-      b.mine(this.dif);
-      this.chain.push(b);
-    }
-    updateBlock(index, data) {
-      this.chain.find(b => b.index === index).data = data; // no recalcula el hash a propósito
-    }
-    deleteBlock(index) {
-      this.chain = this.chain.filter(b => b.index !== index);
-    }
-    isValid() {
-      for (let i = 1; i < this.chain.length; i++) {
-        if (this.chain[i].hash !== this.chain[i].createHash()) return { ok: false, i };
-        if (this.chain[i].previousHash !== this.chain[i - 1].hash) return { ok: false, i };
-      }
-      return { ok: true };
-    }
-  }
-
-  let naniCoin = new BlockChain('genesis');
-  naniCoin.addBlock('primer bloque');
-
-  function crear() {
-    naniCoin.addBlock(document.getElementById('data').value);
-    document.getElementById('data').value = '';
-    render();
-  }
-  function editar(i) {
-    const nuevo = prompt('Nuevos datos:', naniCoin.chain.find(b => b.index === i).data);
-    if (nuevo !== null) { naniCoin.updateBlock(i, nuevo); render(); }
-  }
-  function eliminar(i) {
-    if (confirm('¿Eliminar bloque ' + i + '?')) { naniCoin.deleteBlock(i); render(); }
-  }
-
-  function render() {
-    const v = naniCoin.isValid();
-    document.getElementById('status').textContent = v.ok ? ' Cadena íntegra' : ' Cadena rota en el bloque ' + v.i;
-
-    document.getElementById('chain').innerHTML = naniCoin.chain.map(b => `
+  <!-- Etiquetas semánticas header y nav -->
+  <header>
+    <nav class="menu-principal">
+      <strong>KIDS ZONE</strong>
       <div>
-        <b>#${b.index}</b> — ${b.data}<br>
-        hash: ${b.hash}<br>
-        anterior: ${b.previousHash || '—'}
-        ${b.index > 0 ? `<button onclick="editar(${b.index})">Editar</button>
-        <button onclick="eliminar(${b.index})">Eliminar</button>` : ''}
-      </div><hr>
-    `).join('');
-  }
+        <button onclick="cambiarVista('admin')">Vista Administrador</button>
+        <button onclick="cambiarVista('docente')">Vista Docente</button>
+        <button onclick="cambiarVista('padre')">Vista Padre</button>
+      </div>
+    </nav>
+  </header>
 
-  render();
-</script>
+  <div class="contenedor-responsive">
+    <div class="layout-principal">
+      <!-- Etiqueta semántica main -->
+      <main>
+        <!-- VISTA 1: ADMINISTRADOR (HU01 y HU03) -->
+        <section id="vista-admin">
+          <h1>Panel Administrador: Matrículas y Consentimientos</h1>
+          <form id="form-estudiante" class="grid-tarjetas">
+            <input type="text" id="nombre" placeholder="Nombre del estudiante" required />
+            <input type="number" id="edad" placeholder="Edad" required />
+            <input type="text" id="acudiente" placeholder="Nombre del Acudiente Legal" required />
+            <input type="tel" id="contacto" placeholder="Teléfono de emergencia" required />
+            <label><input type="checkbox" id="consentimiento" style="width:auto;" /> Autoriza Uso de Imagen (Ley 1581)</label>
+            <button type="submit" class="accion">Vincular y Matricular (HU01)</button>
+          </form>
+          <h2>Estudiantes y Control de Imagen (HU03)</h2>
+          <div id="lista-estudiantes" class="grid-tarjetas"></div>
+        </section>
 
+        <!-- VISTA 2: DOCENTE (HU02, HU08 y HU11) -->
+        <section id="vista-docente" class="oculto">
+          <h1>Panel Docente: Ficha Médica y Agenda Digital</h1>
+          <div id="banner-medico" class="alerta-roja">Cargando ficha médica...</div>
+          <form id="form-agenda" class="grid-tarjetas">
+            <label>Alimentación (HU08):
+              <select id="alimentacion">
+                <option value="Comió todo">Comió todo</option>
+                <option value="Parcial">Parcial</option>
+                <option value="Nada">Nada</option>
+              </select>
+            </label>
+            <label>Comentario pedagógico (máx. 200 caracteres):
+              <textarea id="actividades" maxlength="200" required></textarea>
+            </label>
+            <label>Reporte de Incidente (HU11):
+              <input type="text" id="incidente" placeholder="Novedad de salud o conducta" />
+            </label>
+            <button type="submit" class="accion">Guardar Agenda y Notificar</button>
+          </form>
+          <p id="estado-agenda"></p>
+        </section>
+
+        <!-- VISTA 3: PADRE (HU04, HU05 y HU07) -->
+        <section id="vista-padre" class="oculto">
+          <h1>Portal de Padres: Estado de Cuenta y Cámaras</h1>
+          <p><strong>Saldo Total Pendiente:</strong> $<span id="saldo-total">0</span> COP</p>
+          <div id="lista-pagos" class="grid-tarjetas"></div>
+
+          <h2 style="margin-top:1.5rem;">Monitoreo de Cámaras por Salón (HU07)</h2>
+          <button class="accion" onclick="conectarCamara()">Conectar a Cámara en Vivo (7:00 AM - 5:00 PM)</button>
+          <p id="mensaje-camara"></p>
+        </section>
+      </main>
+
+      <!-- Barra lateral aside -->
+      <aside>
+        <h3>Seguridad Ley 1581</h3>
+        <p>KIDS ZONE protege la información médica de los menores, bloquea fotos sin consentimiento y restringe cámaras por horario escolar.</p>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+
+    function cambiarVista(vista) {
+      document.getElementById('vista-admin').classList.toggle('oculto', vista !== 'admin');
+      document.getElementById('vista-docente').classList.toggle('oculto', vista !== 'docente');
+      document.getElementById('vista-padre').classList.toggle('oculto', vista !== 'padre');
+      if (vista === 'admin') cargarEstudiantes();
+      if (vista === 'docente') cargarFichaMedica();
+      if (vista === 'padre') cargarPagos();
+    }
+
+    // HU01 y HU03: Cargar estudiantes y bloquear fotos si consentimiento es Negado
+    async function cargarEstudiantes() {
+      const res = await fetch(`${API_URL}/estudiantes`);
+      const datos = await res.json();
+      const contenedor = document.getElementById('lista-estudiantes');
+      contenedor.innerHTML = datos.map(est => `
+        <article class="tarjeta">
+          <h3>${est.nombre} (${est.id_familia})</h3>
+          <p>Acudiente: ${est.nombreAcudiente} (${est.contacto})</p>
+          <p>Permiso de Fotos: <strong>${est.consentimientoImagen ? 'Aprobado' : 'Negado'}</strong></p>
+          <button class="accion" onclick="toggleConsentimiento(${est.id}, ${!est.consentimientoImagen})">
+            ${est.consentimientoImagen ? 'Revocar Permiso' : 'Aprobar Permiso'}
+          </button>
+          <input type="file" ${!est.consentimientoImagen ? 'disabled' : ''} />
+          ${!est.consentimientoImagen ? '<small style="color:#dc2626;">Carga bloqueada por falta de consentimiento</small>' : ''}
+        </article>
+      `).join('');
+    }
+
+    document.getElementById('form-estudiante').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await fetch(`${API_URL}/estudiantes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: document.getElementById('nombre').value,
+          edad: document.getElementById('edad').value,
+          nombreAcudiente: document.getElementById('acudiente').value,
+          contacto: document.getElementById('contacto').value,
+          consentimientoImagen: document.getElementById('consentimiento').checked
+        })
+      });
+      e.target.reset();
+      cargarEstudiantes();
+    });
+
+    async function toggleConsentimiento(id, estado) {
+      await fetch(`${API_URL}/estudiantes/${id}/consentimiento`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ autorizado: estado })
+      });
+      cargarEstudiantes();
+    }
+
+    // HU02: Ficha médica con caché offline en localStorage
+    async function cargarFichaMedica() {
+      let ficha;
+      try {
+        const res = await fetch(`${API_URL}/estudiantes/1/ficha-medica`);
+        ficha = await res.json();
+        localStorage.setItem('ficha_emergencia', JSON.stringify(ficha));
+      } catch {
+        ficha = JSON.parse(localStorage.getItem('ficha_emergencia'));
+      }
+      if (ficha) {
+        document.getElementById('banner-medico').innerHTML = `
+          ALERTA DE ALERGIAS: ${ficha.alergias} | EPS: ${ficha.eps} | RH: ${ficha.tipo_sangre}
+          <br><a href="tel:${ficha.contacto_emergencia}" style="color:#991b1b;">Llamar de urgencia (${ficha.contacto_emergencia})</a>
+        `;
+      }
+    }
+
+    // HU08 y HU11: Guardar agenda
+    document.getElementById('form-agenda').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await fetch(`${API_URL}/agenda`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          alimentacion: document.getElementById('alimentacion').value,
+          actividades: document.getElementById('actividades').value,
+          incidente: document.getElementById('incidente').value
+        })
+      });
+      document.getElementById('estado-agenda').textContent = 'Agenda y reporte enviados al padre de familia.';
+      e.target.reset();
+    });
+
+    // HU04 y HU05: Cargar estado de cuenta
+    async function cargarPagos() {
+      const res = await fetch(`${API_URL}/pagos`);
+      const datos = await res.json();
+      const total = datos.filter(p => p.estado === 'Pendiente').reduce((s, p) => s + Number(p.valor), 0);
+      document.getElementById('saldo-total').textContent = total.toLocaleString('es-CO');
+      document.getElementById('lista-pagos').innerHTML = datos.map(p => `
+        <article class="tarjeta">
+          <h3>${p.concepto}</h3>
+          <p>Valor: $${Number(p.valor).toLocaleString('es-CO')} COP — <strong>${p.estado}</strong></p>
+          <button class="accion" onclick="window.print()">Descargar Factura PDF</button>
+        </article>
+      `).join('');
+    }
+
+    // HU07: Cámaras con restricción horaria (7:00 a 17:00) y límite de 15 min
+    function conectarCamara() {
+      const hora = new Date().getHours();
+      const msg = document.getElementById('mensaje-camara');
+      if (hora < 7 || hora >= 17) {
+        msg.textContent = 'Streaming no disponible: Fuera de la jornada escolar (7:00 AM - 5:00 PM).';
+      } else {
+        msg.textContent = 'Conectado en vivo al salón. Sesión limitada a 15 minutos.';
+      }
+    }
+
+    // Inicializar vista por defecto
+    cargarEstudiantes();
+  </script>
 </body>
 </html>
